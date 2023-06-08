@@ -99,7 +99,10 @@ app.get('/users',verifyToken,async (req,res)=>{
     }
 })
 // Logout user (optional, as JWT tokens are stateless)
-
+app.get('/home',(req,res)=>{
+    res.send("welcome to the bgmi rooms")
+    res.json({message:"welcome to the bgmi rooms"})
+})
 // Start the server
 app.listen(3000, () => {
   console.log('Server is listening on port 3000');
