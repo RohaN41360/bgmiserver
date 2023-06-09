@@ -3,10 +3,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 require("dotenv").config();
+const cors = require('cors')
+const cookieParser = require('cookie-parser');
 const secret = process.env.SECRET;
 // Create Express app
 const app = express();
+app.use(cors())
 app.use(express.json())
+app.use(cookieParser());
 // Set up MongoDB connection
 
 const DB = process.env.DATABASE;
@@ -28,7 +32,8 @@ const User = mongoose.model('User', UserSchema);
 
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
+  // const token = req.headers['authorization'];
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ message: 'No token provided.' });
   }
@@ -79,7 +84,9 @@ app.post('/login',async (req, res) => {
         return res.status(401).json({ message: 'Invalid email or password.' });
       }
       const token = jwt.sign({ id: user._id },secret, { expiresIn: '1h' });
-      res.status(200).json({ token });
+      // res.status(200).json({ token });
+      res.cookie('token', token, { httpOnly: true });
+      res.json({ message: 'Login successful' });
     });
   });
 
@@ -91,7 +98,7 @@ app.get('/protected', verifyToken, (req, res) => {
 
 
 app.get('/users',verifyToken,async (req,res)=>{
-    try {
+    try { 
         const users = await User.find()
         res.status(200).json(users)
     } catch (error) {
@@ -99,6 +106,13 @@ app.get('/users',verifyToken,async (req,res)=>{
     }
 })
 // Logout user (optional, as JWT tokens are stateless)
+app.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logout successful' });
+});
+//
+
+
 app.get('/home',(req,res)=>{
     res.send("welcome to the bgmi rooms")
     res.json({message:"welcome to the bgmi rooms"})
