@@ -8,7 +8,9 @@ const cookieParser = require('cookie-parser');
 const secret = process.env.SECRET;
 // Create Express app
 const app = express();
-app.use(cors())
+app.use(cors({
+  origin:'*'
+}))
 app.use(express.json())
 app.use(cookieParser());
 // Set up MongoDB connection
@@ -117,6 +119,9 @@ app.get('/home',(req,res)=>{
     res.send("welcome to the bgmi rooms")
     res.json({message:"welcome to the bgmi rooms"})
 })
+
+
+
 // Start the server
 app.listen(3000, () => {
   console.log('Server is listening on port 3000');
